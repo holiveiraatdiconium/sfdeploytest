@@ -61,21 +61,21 @@ steps:
       # Write to a file
       [System.IO.File]::WriteAllBytes("self-signed-2021.pfx", $secretByte)
 
-  - task: AzurePowerShell@5
-    displayName: 'Install certificate into LocalMachine Store'
-    inputs:
-      azureSubscription: '${{ parameters.ArmConnection }}'
-      ScriptType: 'InlineScript'
-      azurePowerShellVersion: 'latestVersion'
-      Inline: |
-        $pfxpath = "./self-signed-2021.pfx"
-        $password = ""
-        Add-Type -AssemblyName System.Security
-        $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2([System.String]$pfxpath, [System.String]$password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]"PersistKeySet")
-        $store = new-object system.security.cryptography.X509Certificates.X509Store -argumentlist "MY", LocalMachine
-        $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
-        $store.Add($cert)
-        $store.Close()
+- task: AzurePowerShell@5
+  displayName: 'Install certificate into LocalMachine Store'
+  inputs:
+    azureSubscription: '${{ parameters.ArmConnection }}'
+    ScriptType: 'InlineScript'
+    azurePowerShellVersion: 'latestVersion'
+    Inline: |
+      $pfxpath = "./self-signed-2021.pfx"
+      $password = ""
+      Add-Type -AssemblyName System.Security
+      $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2([System.String]$pfxpath, [System.String]$password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]"PersistKeySet")
+      $store = new-object system.security.cryptography.X509Certificates.X509Store -argumentlist "MY", LocalMachine
+      $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
+      $store.Add($cert)
+      $store.Close()
 
 - task: Bash@3
   inputs:
