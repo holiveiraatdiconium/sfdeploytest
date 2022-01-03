@@ -39,7 +39,7 @@ steps:
 - task: AzurePowerShell@5
   displayName: 'Get the self signed certificate from the Key Vault'
   inputs:
-    azureSubscription: '${{ variables.ArmConnection }}'
+    azureSubscription: 'ccg-arm-ccg-suu'
     ScriptType: 'InlineScript'
     azurePowerShellVersion: 'latestVersion'
     Inline: |
