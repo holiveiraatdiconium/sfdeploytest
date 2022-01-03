@@ -9,16 +9,6 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
-parameters:
-  - name: ArmConnection
-    type: string
-
-  - name: KeyVaultName
-    type: string
-
-  - name: CertNameInKv
-    type: string
-
 variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
@@ -49,12 +39,12 @@ steps:
 - task: AzurePowerShell@5
   displayName: 'Get the self signed certificate from the Key Vault'
   inputs:
-    azureSubscription: '${{ parameters.ArmConnection }}'
+    azureSubscription: '${{ variables.ArmConnection }}'
     ScriptType: 'InlineScript'
     azurePowerShellVersion: 'latestVersion'
     Inline: |
-      $vaultName = "${{ parameters.KeyVaultName }}"
-      $certName = "${{ parameters.CertNameInKv }}"
+      $vaultName = "${{ variables.KeyVaultName }}"
+      $certName = "${{ variables.CertNameInKv }}"
       $cert = Get-AzKeyVaultCertificate -VaultName $vaultName -Name $certName
       $secret = Get-AzKeyVaultSecret -VaultName $vaultName -Name $cert.Name -AsPlainText
       $secretByte = [Convert]::FromBase64String($secret)
