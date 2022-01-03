@@ -23,12 +23,14 @@ steps:
 
 - task: VSBuild@1
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/t:Package /p:PackageLocation="$(build.artifactStagingDirectory)"'
-    platform: '$(buildPlatform)'
+    solution: '$(Build.SourcesDirectory)\SfHelloWorldApi\SfHelloWorldApi\SfHelloWorldApi.sfproj'
+    msbuildArgs: '/t:Package /p:PackageLocation=$(Build.BinariesDirectory)\Release\Applications\SfHelloWorldApi\Pkg\release'
+    platform: 'x64'
     configuration: '$(buildConfiguration)'
 
-- task: VSTest@2
+# Publish SF App Package to the Pipeline
+- task: PublishBuildArtifacts@1
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    PathtoPublish: '$(Build.BinariesDirectory)\Release'
+    ArtifactName: 'SfHelloWorldApi_dev'
+    publishLocation: 'Container'
