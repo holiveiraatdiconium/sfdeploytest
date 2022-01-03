@@ -13,11 +13,9 @@ parameters:
   - name: ArmConnection
     type: string
 
-parameters:
   - name: KeyVaultName
     type: string
-    
-parameters:
+
   - name: CertNameInKv
     type: string
 
