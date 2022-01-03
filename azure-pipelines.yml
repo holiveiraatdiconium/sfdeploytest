@@ -33,6 +33,15 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
+- task: CopyFiles@2
+  displayName: 'Copy scripts to staging dir'
+  inputs:
+    SourceFolder: '$(System.DefaultWorkingDirectory)'
+    Contents: |
+      scripts\**
+    TargetFolder: '$(Build.BinariesDirectory)\Release'
+    flattenFolders: false
+      
 - task: VSBuild@1
   inputs:
     solution: '$(Build.SourcesDirectory)\SfHelloWorldApi\SfHelloWorldApi\SfHelloWorldApi.sfproj'
@@ -63,3 +72,10 @@ steps:
       Write-Host "##vso[task.setvariable variable=SscTumbprint;]$($cert.Thumbprint)"
       # Write to a file
       [System.IO.File]::WriteAllBytes("ccg-self-signed-2021.pfx", $secretByte)
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+        find . -type f
+
