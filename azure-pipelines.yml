@@ -65,7 +65,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-        find $(Pipeline.Workspace) -type f
+        find "$(Pipeline.Workspace)" -type f
 
 # - task: AzurePowerShell@5
 #   displayName: 'Deploy test'
