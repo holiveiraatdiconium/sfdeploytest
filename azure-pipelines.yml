@@ -9,6 +9,18 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
+parameters:
+  - name: ArmConnection
+    type: string
+
+parameters:
+  - name: KeyVaultName
+    type: string
+    
+parameters:
+  - name: CertNameInKv
+    type: string
+
 variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
@@ -34,3 +46,20 @@ steps:
     PathtoPublish: '$(Build.BinariesDirectory)\Release'
     ArtifactName: 'SfHelloWorldApi_dev'
     publishLocation: 'Container'
+
+# Get certificate
+- task: AzurePowerShell@5
+  displayName: 'Get the self signed certificate from the Key Vault'
+  inputs:
+    azureSubscription: '${{ parameters.ArmConnection }}'
+    ScriptType: 'InlineScript'
+    azurePowerShellVersion: 'latestVersion'
+    Inline: |
+      $vaultName = "${{ parameters.KeyVaultName }}"
+      $certName = "${{ parameters.CertNameInKv }}"
+      $cert = Get-AzKeyVaultCertificate -VaultName $vaultName -Name $certName
+      $secret = Get-AzKeyVaultSecret -VaultName $vaultName -Name $cert.Name -AsPlainText
+      $secretByte = [Convert]::FromBase64String($secret)
+      Write-Host "##vso[task.setvariable variable=SscTumbprint;]$($cert.Thumbprint)"
+      # Write to a file
+      [System.IO.File]::WriteAllBytes("ccg-self-signed-2021.pfx", $secretByte)
