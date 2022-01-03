@@ -83,14 +83,14 @@ steps:
     script: |
         find "$(Pipeline.Workspace)" -type f
 
-# - task: AzurePowerShell@5
-#   displayName: 'Deploy test'
-#   inputs:
-#     ScriptType: 'filePath'
-#     ScriptPath: '$(Build.SourcesDirectory)/scripts/sf-deploy.ps1'
-#     azureSubscription: 'ccg-arm-ccg-suu'
-#     azurePowerShellVersion: 'OtherVersion'
-#     preferredAzurePowerShellVersion: '5.1.0'
-#     ScriptArguments: -thumbprint $(Thumbprint) -appName SfHelloWorldApi -clusterendpoint $(ClusterEndpoint) -packagepath ./SfHelloWorldApi/HelloWorldService/bin/x64/Release -imageStoreConnectionString fabric:ImageStore
+- task: AzurePowerShell@5
+  displayName: 'Deploy test'
+  inputs:
+    ScriptType: 'filePath'
+    ScriptPath: '$(Build.SourcesDirectory)/scripts/sf-deploy.ps1'
+    azureSubscription: 'ccg-arm-ccg-suu'
+    azurePowerShellVersion: 'OtherVersion'
+    preferredAzurePowerShellVersion: '5.1.0'
+    ScriptArguments: -thumbprint $(Thumbprint) -appName SfHelloWorldApi -clusterendpoint $(ClusterEndpoint) -packagepath "$(Build.BinariesDirectory)\Release\Applications\SfHelloWorldApi\Pkg\release" -imageStoreConnectionString fabric:ImageStore
 
 
