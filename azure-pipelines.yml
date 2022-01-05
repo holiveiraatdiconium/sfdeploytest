@@ -44,53 +44,15 @@ steps:
     ArtifactName: 'SfHelloWorldApi_dev'
     publishLocation: 'Container'
 
-# Get certificate
-- task: AzurePowerShell@5
-  displayName: 'Get the self signed certificate from the Key Vault'
+# Deploy Backend Service Fabric Application
+- task: ServiceFabricDeploy@1
+  displayName: 'Deploy test using task'
   inputs:
-    azureSubscription: 'ccg-arm-ccg-suu'
-    ScriptType: 'InlineScript'
-    azurePowerShellVersion: 'latestVersion'
-    Inline: |
-      $vaultName = "$(KeyVaultName)"
-      $certName = "$(CertNameInKv)"
-      $cert = Get-AzKeyVaultCertificate -VaultName $vaultName -Name $certName
-      $secret = Get-AzKeyVaultSecret -VaultName $vaultName -Name $cert.Name -AsPlainText
-      $secretByte = [Convert]::FromBase64String($secret)
-      Write-Host "##vso[task.setvariable variable=SscTumbprint;]$($cert.Thumbprint)"
-      # Write to a file
-      [System.IO.File]::WriteAllBytes("self-signed-2021.pfx", $secretByte)
-
-- task: AzurePowerShell@5
-  displayName: 'Install certificate into LocalMachine Store'
-  inputs:
-    azureSubscription: 'ccg-arm-ccg-suu'
-    ScriptType: 'InlineScript'
-    azurePowerShellVersion: 'latestVersion'
-    Inline: |
-      $pfxpath = "./self-signed-2021.pfx"
-      $password = ""
-      Add-Type -AssemblyName System.Security
-      $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2([System.String]$pfxpath, [System.String]$password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]"PersistKeySet")
-      $store = new-object system.security.cryptography.X509Certificates.X509Store -argumentlist "MY", LocalMachine
-      $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]"ReadWrite")
-      $store.Add($cert)
-      $store.Close()
-
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: |
-        find "$(Pipeline.Workspace)" -type f
-
-- task: AzurePowerShell@5
-  displayName: 'Deploy test'
-  inputs:
-    ScriptType: 'filePath'
-    ScriptPath: '$(Build.SourcesDirectory)/scripts/sf-deploy.ps1'
-    azureSubscription: 'ccg-arm-ccg-suu'
-    azurePowerShellVersion: 'OtherVersion'
-    preferredAzurePowerShellVersion: '5.1.0'
-    ScriptArguments: -thumbprint $(Thumbprint) -appName SfHelloWorldApi -clusterendpoint $(ClusterEndpoint) -packagepath "$(Build.BinariesDirectory)\Release\Applications\SfHelloWorldApi\Pkg\release" -imageStoreConnectionString fabric:ImageStore
-
-
+    applicationPackagePath: '$(Build.BinariesDirectory)\Release\Applications\SfHelloWorldApi\Pkg\release'
+    serviceConnectionName: '$(ServiceConnectionName)'
+    # applicationParameterPath: '$(Pipeline.Workspace)\InfrastructureArtifacts_${{ parameters.Environment }}\Backend.xml'
+    overwriteBehavior: 'always'
+    overridePublishProfileSettings: true
+    upgradeMode: 'Monitored'
+    FailureAction: 'Rollback'
+    isUpgrade: true
